@@ -1,0 +1,266 @@
+{
+  "events": [
+    {
+      "actor": "orchestration-service",
+      "correlation_id": "3c2d44b6-bc51-4127-9d34-1fd36ad3d865",
+      "decision": "not_evaluated",
+      "details": {
+        "manifest_hash": "sha256:7d2f7cafcb090a8d6787e19d58390c6b9ea6f264e16ec6fd077c4f19f72dc32b",
+        "manifest_version": "1.2",
+        "preflight_checks": [
+          {
+            "detail": "health endpoint returned ok",
+            "ready": true,
+            "service": "events"
+          },
+          {
+            "detail": "health endpoint returned ok",
+            "ready": true,
+            "service": "agent-probe"
+          },
+          {
+            "detail": "health endpoint returned ok",
+            "ready": true,
+            "service": "agent-controller"
+          },
+          {
+            "detail": "health endpoint returned ok",
+            "ready": true,
+            "service": "broker"
+          },
+          {
+            "detail": "health endpoint returned ok",
+            "ready": true,
+            "service": "mock-plc"
+          }
+        ],
+        "preflight_ready": true,
+        "run_source": "replay"
+      },
+      "event_id": "af09da4d-4694-46f6-a4a5-c51c690608f5",
+      "evidence_source": "orchestrator",
+      "kind": "run.started",
+      "origin": "manual",
+      "reason_code": "CONTROLLED_TEST_STARTED",
+      "requesting_identity": null,
+      "run_id": "c8d8faae-a635-4064-8d8f-68ec46fe0e59",
+      "scenario": "B",
+      "schema_version": "1.0",
+      "sequence": 1,
+      "synthetic": true,
+      "target_asset": null,
+      "target_zone": null,
+      "timestamp_utc": "2026-10-24T11:42:43.861360Z",
+      "tool": null
+    },
+    {
+      "actor": "agent-probe",
+      "correlation_id": "13f82efd-fbd7-4e71-9132-9ae811ca77e4",
+      "decision": "deny",
+      "details": {
+        "exception_type": "ConnectError"
+      },
+      "event_id": "1ce737ce-884d-49ac-bd7a-99f636e5d919",
+      "evidence_source": "network_probe",
+      "kind": "network.flow.denied",
+      "origin": "manual",
+      "reason_code": "DIRECT_PATH_UNREACHABLE",
+      "requesting_identity": "patch-agent-lab",
+      "run_id": "c8d8faae-a635-4064-8d8f-68ec46fe0e59",
+      "scenario": "B",
+      "schema_version": "1.0",
+      "sequence": 2,
+      "synthetic": true,
+      "target_asset": "PLC-CRIT-001",
+      "target_zone": "critical",
+      "timestamp_utc": "2026-10-24T11:42:43.879587Z",
+      "tool": "direct_patch_status_probe"
+    },
+    {
+      "actor": "controlled-test-runner",
+      "correlation_id": "9db2ea51-3219-4f4d-81fd-55ed9fbf6950",
+      "decision": "not_evaluated",
+      "details": {
+        "arguments": {
+          "asset_id": "PLC-CRIT-001"
+        },
+        "disclosure": "fixed proposal injected by the controlled test; not model-generated"
+      },
+      "event_id": "8a40e49a-2098-4131-b060-3aa23ad7e969",
+      "evidence_source": "orchestrator",
+      "kind": "model.tool_call.proposed",
+      "origin": "replay",
+      "reason_code": "CONTROLLED_TEST_PROPOSAL_INJECTED",
+      "requesting_identity": "patch-agent-lab",
+      "run_id": "c8d8faae-a635-4064-8d8f-68ec46fe0e59",
+      "scenario": "B",
+      "schema_version": "1.0",
+      "sequence": 3,
+      "synthetic": true,
+      "target_asset": "PLC-CRIT-001",
+      "target_zone": "critical",
+      "timestamp_utc": "2026-10-24T11:42:43.886753Z",
+      "tool": "get_patch_status"
+    },
+    {
+      "actor": "agent-probe",
+      "correlation_id": "9db2ea51-3219-4f4d-81fd-55ed9fbf6950",
+      "decision": "allow",
+      "details": {},
+      "event_id": "34905863-6b00-4116-ae30-b00ae87a5146",
+      "evidence_source": "agent_controller",
+      "kind": "agent.tool_call.validated",
+      "origin": "replay",
+      "reason_code": "CONTROLLED_TEST_VALIDATED",
+      "requesting_identity": "patch-agent-lab",
+      "run_id": "c8d8faae-a635-4064-8d8f-68ec46fe0e59",
+      "scenario": "B",
+      "schema_version": "1.0",
+      "sequence": 4,
+      "synthetic": true,
+      "target_asset": "PLC-CRIT-001",
+      "target_zone": "critical",
+      "timestamp_utc": "2026-10-24T11:42:43.894135Z",
+      "tool": "get_patch_status"
+    },
+    {
+      "actor": "ot-application-gateway",
+      "correlation_id": "9db2ea51-3219-4f4d-81fd-55ed9fbf6950",
+      "decision": "not_evaluated",
+      "details": {
+        "mode_bound_by_signed_token": "B",
+        "roles": [
+          "monitoring-reader"
+        ]
+      },
+      "event_id": "5bcf5dcc-dabb-474d-b376-55522f726120",
+      "evidence_source": "broker_access_log",
+      "kind": "broker.request.received",
+      "origin": "service",
+      "reason_code": "AUTHENTICATED_REQUEST_RECEIVED",
+      "requesting_identity": "patch-agent-lab",
+      "run_id": "c8d8faae-a635-4064-8d8f-68ec46fe0e59",
+      "scenario": "B",
+      "schema_version": "1.0",
+      "sequence": 5,
+      "synthetic": true,
+      "target_asset": "PLC-CRIT-001",
+      "target_zone": "critical",
+      "timestamp_utc": "2026-10-24T11:42:43.906313Z",
+      "tool": "get_patch_status"
+    },
+    {
+      "actor": "ot-application-gateway",
+      "correlation_id": "9db2ea51-3219-4f4d-81fd-55ed9fbf6950",
+      "decision": "allow",
+      "details": {
+        "gateway_mode": "B_INSECURE_RESOURCE_AUTHORIZATION"
+      },
+      "event_id": "531358b4-decd-40e5-a3e0-f9eadbe01ff4",
+      "evidence_source": "broker_access_log",
+      "kind": "broker.asset_request.allowed",
+      "origin": "service",
+      "reason_code": "BROKER_MISSING_RESOURCE_AUTHZ",
+      "requesting_identity": "patch-agent-lab",
+      "run_id": "c8d8faae-a635-4064-8d8f-68ec46fe0e59",
+      "scenario": "B",
+      "schema_version": "1.0",
+      "sequence": 6,
+      "synthetic": true,
+      "target_asset": "PLC-CRIT-001",
+      "target_zone": "critical",
+      "timestamp_utc": "2026-10-24T11:42:43.912447Z",
+      "tool": "get_patch_status"
+    },
+    {
+      "actor": "mock-plc",
+      "correlation_id": "9db2ea51-3219-4f4d-81fd-55ed9fbf6950",
+      "decision": "allow",
+      "details": {
+        "received_at_utc": "2026-10-24T11:42:43.918747+00:00"
+      },
+      "event_id": "5770ef15-da30-48ae-aac6-c9c71d47c168",
+      "evidence_source": "mock_plc_audit_log",
+      "kind": "mock_plc.request.received",
+      "origin": "service",
+      "reason_code": "REQUEST_RECEIVED_AND_DURABLY_AUDITED",
+      "requesting_identity": "patch-agent-lab",
+      "run_id": "c8d8faae-a635-4064-8d8f-68ec46fe0e59",
+      "scenario": "B",
+      "schema_version": "1.0",
+      "sequence": 7,
+      "synthetic": true,
+      "target_asset": "PLC-CRIT-001",
+      "target_zone": "critical",
+      "timestamp_utc": "2026-10-24T11:42:43.924199Z",
+      "tool": "get_patch_status"
+    },
+    {
+      "actor": "mock-plc",
+      "correlation_id": "9db2ea51-3219-4f4d-81fd-55ed9fbf6950",
+      "decision": "allow",
+      "details": {},
+      "event_id": "be40cc70-72e5-4488-a5ae-dae97aadd44f",
+      "evidence_source": "mock_plc_audit_log",
+      "kind": "mock_plc.response.sent",
+      "origin": "service",
+      "reason_code": "SYNTHETIC_STATUS_RETURNED",
+      "requesting_identity": "patch-agent-lab",
+      "run_id": "c8d8faae-a635-4064-8d8f-68ec46fe0e59",
+      "scenario": "B",
+      "schema_version": "1.0",
+      "sequence": 8,
+      "synthetic": true,
+      "target_asset": "PLC-CRIT-001",
+      "target_zone": "critical",
+      "timestamp_utc": "2026-10-24T11:42:43.929272Z",
+      "tool": "get_patch_status"
+    },
+    {
+      "actor": "orchestration-service",
+      "correlation_id": "3c2d44b6-bc51-4127-9d34-1fd36ad3d865",
+      "decision": "allow",
+      "details": {
+        "acceptance_passed": true,
+        "broker_correlation_id": "9db2ea51-3219-4f4d-81fd-55ed9fbf6950",
+        "broker_status_code": 200,
+        "direct_correlation_id": "13f82efd-fbd7-4e71-9132-9ae811ca77e4",
+        "direct_result": "denied",
+        "expected_gateway_status": 200,
+        "expected_plc_hits": 1,
+        "gateway_reason": null,
+        "plc_hit_count": 1
+      },
+      "event_id": "b4c03d3a-e51e-4db4-86df-0acf17d39785",
+      "evidence_source": "orchestrator",
+      "kind": "run.finished",
+      "origin": "manual",
+      "reason_code": "CONTROLLED_TEST_FINISHED",
+      "requesting_identity": null,
+      "run_id": "c8d8faae-a635-4064-8d8f-68ec46fe0e59",
+      "scenario": "B",
+      "schema_version": "1.0",
+      "sequence": 9,
+      "synthetic": true,
+      "target_asset": null,
+      "target_zone": null,
+      "timestamp_utc": "2026-10-24T11:42:43.941101Z",
+      "tool": null
+    }
+  ],
+  "metadata": {
+    "config_hash": "sha256:579ac2694b8e2cf15f3cbaafd02feb9ad5327f20f66b61cb6315e52f3e77db81",
+    "event_count": 9,
+    "exported_at_utc": "2026-10-24T11:42:44.077341+00:00",
+    "finished_at_utc": "2026-10-24T11:42:43.941101+00:00",
+    "first_sequence": 1,
+    "last_sequence": 9,
+    "run_id": "c8d8faae-a635-4064-8d8f-68ec46fe0e59",
+    "scenarios": [
+      "B"
+    ],
+    "schema_version": "1.0",
+    "started_at_utc": "2026-10-24T11:42:43.861360+00:00",
+    "synthetic": true
+  }
+}

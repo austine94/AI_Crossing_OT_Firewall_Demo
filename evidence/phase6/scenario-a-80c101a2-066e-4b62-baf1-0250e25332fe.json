@@ -1,0 +1,215 @@
+{
+  "events": [
+    {
+      "actor": "orchestration-service",
+      "correlation_id": "2238ccfa-c9cf-41ab-8077-75b705aa2fa8",
+      "decision": "not_evaluated",
+      "details": {
+        "manifest_hash": "sha256:7d2f7cafcb090a8d6787e19d58390c6b9ea6f264e16ec6fd077c4f19f72dc32b",
+        "manifest_version": "1.2",
+        "preflight_checks": [
+          {
+            "detail": "health endpoint returned ok",
+            "ready": true,
+            "service": "events"
+          },
+          {
+            "detail": "health endpoint returned ok",
+            "ready": true,
+            "service": "firewall-probe"
+          },
+          {
+            "detail": "health endpoint returned ok",
+            "ready": true,
+            "service": "mock-plc"
+          }
+        ],
+        "preflight_ready": true,
+        "run_source": "controlled_firewall_test"
+      },
+      "event_id": "a85ad636-4ce4-49b5-957b-24cf06c977d0",
+      "evidence_source": "orchestrator",
+      "kind": "run.started",
+      "origin": "manual",
+      "reason_code": "FIREWALL_COMPARISON_STARTED",
+      "requesting_identity": null,
+      "run_id": "80c101a2-066e-4b62-baf1-0250e25332fe",
+      "scenario": "A",
+      "schema_version": "1.0",
+      "sequence": 1,
+      "synthetic": true,
+      "target_asset": null,
+      "target_zone": null,
+      "timestamp_utc": "2026-10-24T11:42:42.620497Z",
+      "tool": null
+    },
+    {
+      "actor": "mock-plc",
+      "correlation_id": "1caf0a9f-28d1-4375-ac00-c868cdbfcf9a",
+      "decision": "allow",
+      "details": {
+        "received_at_utc": "2026-10-24T11:42:42.649758+00:00"
+      },
+      "event_id": "bfc4f057-face-4116-a8a2-f0fe3ba7e844",
+      "evidence_source": "mock_plc_audit_log",
+      "kind": "mock_plc.request.received",
+      "origin": "service",
+      "reason_code": "REQUEST_RECEIVED_AND_DURABLY_AUDITED",
+      "requesting_identity": "fixed-firewall-probe",
+      "run_id": "80c101a2-066e-4b62-baf1-0250e25332fe",
+      "scenario": "A",
+      "schema_version": "1.0",
+      "sequence": 2,
+      "synthetic": true,
+      "target_asset": "PLC-CRIT-001",
+      "target_zone": "critical",
+      "timestamp_utc": "2026-10-24T11:42:42.671340Z",
+      "tool": "get_patch_status"
+    },
+    {
+      "actor": "mock-plc",
+      "correlation_id": "1caf0a9f-28d1-4375-ac00-c868cdbfcf9a",
+      "decision": "allow",
+      "details": {},
+      "event_id": "91fc7eea-6f6e-47c3-833b-4158d45e4d83",
+      "evidence_source": "mock_plc_audit_log",
+      "kind": "mock_plc.response.sent",
+      "origin": "service",
+      "reason_code": "SYNTHETIC_STATUS_RETURNED",
+      "requesting_identity": "fixed-firewall-probe",
+      "run_id": "80c101a2-066e-4b62-baf1-0250e25332fe",
+      "scenario": "A",
+      "schema_version": "1.0",
+      "sequence": 3,
+      "synthetic": true,
+      "target_asset": "PLC-CRIT-001",
+      "target_zone": "critical",
+      "timestamp_utc": "2026-10-24T11:42:42.678450Z",
+      "tool": "get_patch_status"
+    },
+    {
+      "actor": "firewall-probe",
+      "correlation_id": "1caf0a9f-28d1-4375-ac00-c868cdbfcf9a",
+      "decision": "allow",
+      "details": {
+        "byte_count": 704,
+        "packet_count": 7,
+        "policy_mode": "permissive",
+        "response_status": 200,
+        "rule_chain": "fixed_output",
+        "rule_family": "inet",
+        "rule_id": "BL-A-PERMISSIVE-001",
+        "rule_table": "boundaryline_a",
+        "target_ip": "172.23.0.3",
+        "target_port": 8000
+      },
+      "event_id": "274af04a-1326-4661-ab77-2c3b00f4d15b",
+      "evidence_source": "network_probe",
+      "kind": "network.flow.allowed",
+      "origin": "manual",
+      "reason_code": "PERMISSIVE_FIREWALL_RULE_ALLOWED",
+      "requesting_identity": "fixed-firewall-probe",
+      "run_id": "80c101a2-066e-4b62-baf1-0250e25332fe",
+      "scenario": "A",
+      "schema_version": "1.0",
+      "sequence": 4,
+      "synthetic": true,
+      "target_asset": "PLC-CRIT-001",
+      "target_zone": "critical",
+      "timestamp_utc": "2026-10-24T11:42:42.685961Z",
+      "tool": "fixed_patch_status_request"
+    },
+    {
+      "actor": "firewall-probe",
+      "correlation_id": "81c6e13c-5e41-4f9e-82b1-33c35319494f",
+      "decision": "deny",
+      "details": {
+        "byte_count": 60,
+        "exception_type": "ConnectError",
+        "packet_count": 1,
+        "policy_mode": "corrected",
+        "response_status": null,
+        "rule_chain": "fixed_output",
+        "rule_family": "inet",
+        "rule_id": "BL-A-CORRECTED-001",
+        "rule_table": "boundaryline_a",
+        "target_ip": "172.23.0.3",
+        "target_port": 8000
+      },
+      "event_id": "413d375a-903a-4d33-aab1-d6251d477faf",
+      "evidence_source": "network_probe",
+      "kind": "network.flow.denied",
+      "origin": "manual",
+      "reason_code": "CORRECTED_FIREWALL_RULE_DENIED",
+      "requesting_identity": "fixed-firewall-probe",
+      "run_id": "80c101a2-066e-4b62-baf1-0250e25332fe",
+      "scenario": "A",
+      "schema_version": "1.0",
+      "sequence": 5,
+      "synthetic": true,
+      "target_asset": "PLC-CRIT-001",
+      "target_zone": "critical",
+      "timestamp_utc": "2026-10-24T11:42:42.716707Z",
+      "tool": "fixed_patch_status_request"
+    },
+    {
+      "actor": "orchestration-service",
+      "correlation_id": "2238ccfa-c9cf-41ab-8077-75b705aa2fa8",
+      "decision": "allow",
+      "details": {
+        "acceptance_passed": true,
+        "corrected": {
+          "byte_count": 60,
+          "mode": "corrected",
+          "packet_count": 1,
+          "response_status": null,
+          "result": "denied",
+          "rule_id": "BL-A-CORRECTED-001",
+          "target_asset": "PLC-CRIT-001"
+        },
+        "corrected_added_plc_hits": 0,
+        "permissive": {
+          "byte_count": 704,
+          "mode": "permissive",
+          "packet_count": 7,
+          "response_status": 200,
+          "result": "allowed",
+          "rule_id": "BL-A-PERMISSIVE-001",
+          "target_asset": "PLC-CRIT-001"
+        },
+        "plc_hits_after_corrected": 1,
+        "plc_hits_after_permissive": 1
+      },
+      "event_id": "71fca81f-d222-40de-a964-bf9df63c9a60",
+      "evidence_source": "orchestrator",
+      "kind": "run.finished",
+      "origin": "manual",
+      "reason_code": "FIREWALL_COMPARISON_FINISHED",
+      "requesting_identity": null,
+      "run_id": "80c101a2-066e-4b62-baf1-0250e25332fe",
+      "scenario": "A",
+      "schema_version": "1.0",
+      "sequence": 6,
+      "synthetic": true,
+      "target_asset": null,
+      "target_zone": null,
+      "timestamp_utc": "2026-10-24T11:42:42.735124Z",
+      "tool": null
+    }
+  ],
+  "metadata": {
+    "config_hash": "sha256:579ac2694b8e2cf15f3cbaafd02feb9ad5327f20f66b61cb6315e52f3e77db81",
+    "event_count": 6,
+    "exported_at_utc": "2026-10-24T11:42:42.839263+00:00",
+    "finished_at_utc": "2026-10-24T11:42:42.735124+00:00",
+    "first_sequence": 1,
+    "last_sequence": 6,
+    "run_id": "80c101a2-066e-4b62-baf1-0250e25332fe",
+    "scenarios": [
+      "A"
+    ],
+    "schema_version": "1.0",
+    "started_at_utc": "2026-10-24T11:42:42.620497+00:00",
+    "synthetic": true
+  }
+}

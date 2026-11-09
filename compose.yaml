@@ -1,0 +1,303 @@
+name: boundaryline
+
+x-service-base: &service-base
+  build:
+    context: .
+    dockerfile: Dockerfile.service
+  image: boundaryline/service:local
+  restart: "no"
+  read_only: true
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  tmpfs:
+    - /tmp:size=16m,mode=1777
+
+services:
+  events:
+    <<: *service-base
+    command: ["uvicorn", "services.events.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      BOUNDARYLINE_CONFIG_FILES: /app/fixtures/assets.json,/app/fixtures/identities.json,/app/fixtures/scenarios.json,/app/policy/boundaryline.rego
+      BOUNDARYLINE_EVENT_DB: /data/events.db
+    networks:
+      - management
+      - critical
+    ports:
+      - "127.0.0.1:8004:8000"
+    volumes:
+      - event-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')",
+        ]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+
+  inventory:
+    <<: *service-base
+    command: ["uvicorn", "services.inventory.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      BOUNDARYLINE_ASSET_FIXTURE: /app/fixtures/assets.json
+    networks:
+      - management
+      - monitoring
+    ports:
+      - "127.0.0.1:8001:8000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')",
+        ]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+
+  mock-plc:
+    <<: *service-base
+    command: ["uvicorn", "services.mock_plc.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      BOUNDARYLINE_ADMIN_SECRET: ${BOUNDARYLINE_ADMIN_SECRET:-local-development-only}
+      BOUNDARYLINE_EVENT_URL: http://events:8000
+      BOUNDARYLINE_PLC_ASSET_ID: PLC-CRIT-001
+      BOUNDARYLINE_PLC_AUDIT_DB: /data/mock_plc_audit.db
+    networks:
+      - critical
+    volumes:
+      - plc-audit:/data
+    depends_on:
+      events:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')",
+        ]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+
+  broker:
+    <<: *service-base
+    command: ["uvicorn", "services.broker.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      BOUNDARYLINE_BROKER_AUDIENCE: boundaryline-broker
+      BOUNDARYLINE_EVENT_URL: http://events:8000
+      BOUNDARYLINE_INVENTORY_URL: http://inventory:8000
+      BOUNDARYLINE_MODEL_NAME: cajina/gemma4_e2b-q4_k_s:v01
+      BOUNDARYLINE_OPA_URL: http://policy:8181
+      BOUNDARYLINE_PLC_URL: http://mock-plc:8000
+      BOUNDARYLINE_TOKEN_SECRET: ${BOUNDARYLINE_TOKEN_SECRET:-local-development-only}
+    networks:
+      - management
+      - critical
+    ports:
+      - "127.0.0.1:8002:8000"
+    depends_on:
+      mock-plc:
+        condition: service_healthy
+      inventory:
+        condition: service_healthy
+      policy:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')",
+        ]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+
+  policy:
+    image: openpolicyagent/opa:1.21.4
+    command:
+      ["run", "--server", "--addr=0.0.0.0:8181", "--log-level=info", "/policies"]
+    restart: "no"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - management
+    volumes:
+      - ./policy:/policies:ro
+
+  agent-probe:
+    <<: *service-base
+    command: ["uvicorn", "services.agent_probe.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      BOUNDARYLINE_BROKER_URL: http://broker:8000
+      BOUNDARYLINE_DIRECT_PLC_URL: http://mock-plc:8000
+      BOUNDARYLINE_EVENT_URL: http://events:8000
+    networks:
+      - management
+    ports:
+      - "127.0.0.1:8003:8000"
+    depends_on:
+      broker:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')",
+        ]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+
+  firewall-probe:
+    build:
+      context: .
+      dockerfile: Dockerfile.firewall
+    image: boundaryline/firewall-probe:local
+    command: ["uvicorn", "services.firewall_probe.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    restart: "no"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_ADMIN
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    environment:
+      BOUNDARYLINE_EVENT_URL: http://events:8000
+      BOUNDARYLINE_FIREWALL_TARGET_HOST: mock-plc
+      BOUNDARYLINE_FIREWALL_TARGET_PORT: "8000"
+    networks:
+      - management
+      - critical
+    ports:
+      - "127.0.0.1:8006:8000"
+    depends_on:
+      events:
+        condition: service_healthy
+      mock-plc:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')",
+        ]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+
+  agent-controller:
+    <<: *service-base
+    command:
+      ["uvicorn", "services.agent_controller.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      BOUNDARYLINE_BROKER_URL: http://broker:8000
+      BOUNDARYLINE_EVENT_URL: http://events:8000
+      BOUNDARYLINE_INVENTORY_URL: http://inventory:8000
+      BOUNDARYLINE_MODEL_NAME: cajina/gemma4_e2b-q4_k_s:v01
+      BOUNDARYLINE_MODEL_URL: http://host.docker.internal:11434
+      BOUNDARYLINE_TOKEN_SECRET: ${BOUNDARYLINE_TOKEN_SECRET:-local-development-only}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - management
+    depends_on:
+      inventory:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
+      events:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')",
+        ]
+      interval: 3s
+      timeout: 4s
+      retries: 20
+
+  orchestration:
+    <<: *service-base
+    command:
+      ["uvicorn", "services.orchestration.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      BOUNDARYLINE_ADMIN_SECRET: ${BOUNDARYLINE_ADMIN_SECRET:-local-development-only}
+      BOUNDARYLINE_AGENT_CONTROLLER_URL: http://agent-controller:8000
+      BOUNDARYLINE_AGENT_PROBE_URL: http://agent-probe:8000
+      BOUNDARYLINE_BROKER_AUDIENCE: boundaryline-broker
+      BOUNDARYLINE_BROKER_URL: http://broker:8000
+      BOUNDARYLINE_EVENT_URL: http://events:8000
+      BOUNDARYLINE_FIREWALL_PROBE_URL: http://firewall-probe:8000
+      BOUNDARYLINE_INVENTORY_URL: http://inventory:8000
+      BOUNDARYLINE_PLC_URL: http://mock-plc:8000
+      BOUNDARYLINE_OPA_URL: http://policy:8181
+      BOUNDARYLINE_SCENARIO_MANIFEST: /app/fixtures/scenarios.json
+      BOUNDARYLINE_TOKEN_SECRET: ${BOUNDARYLINE_TOKEN_SECRET:-local-development-only}
+    networks:
+      - management
+      - critical
+    ports:
+      - "127.0.0.1:8005:8000"
+      - "127.0.0.1:3000:8000"
+    depends_on:
+      events:
+        condition: service_healthy
+      mock-plc:
+        condition: service_healthy
+      agent-probe:
+        condition: service_healthy
+      firewall-probe:
+        condition: service_healthy
+      agent-controller:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')",
+        ]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+
+networks:
+  management:
+    driver: bridge
+  monitoring:
+    driver: bridge
+    internal: true
+  critical:
+    driver: bridge
+    internal: true
+
+volumes:
+  event-data:
+  plc-audit:
+

@@ -1,0 +1,23 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY pyproject.toml uv.lock requirements.lock README.md ./
+COPY boundaryline ./boundaryline
+COPY services ./services
+COPY fixtures ./fixtures
+COPY policy ./policy
+
+RUN python -m pip install --no-cache-dir --require-hashes --requirement requirements.lock \
+    && python -m pip install --no-cache-dir --no-deps . \
+    && adduser --system --group --no-create-home boundaryline \
+    && mkdir -p /data \
+    && chown boundaryline:boundaryline /data
+
+USER boundaryline
+
+CMD ["uvicorn", "services.inventory.app:app", "--host", "0.0.0.0", "--port", "8000"]
+

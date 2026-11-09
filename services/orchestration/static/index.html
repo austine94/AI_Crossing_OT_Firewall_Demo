@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>BoundaryLine — AI/OT Trust Boundary Lab</title>
+    <link rel="stylesheet" href="/styles.css?v=16" />
+    <script src="/app.js?v=12" defer></script>
+  </head>
+  <body>
+    <div class="simulation-watermark" aria-hidden="true">LAB SIMULATION</div>
+    <main>
+      <section class="control-rail" aria-labelledby="scenario-heading">
+        <div class="control-copy">
+          <h2 id="scenario-heading">Choose a Lab Mode</h2>
+        </div>
+        <div id="scenario-selector" class="scenario-selector" role="list" aria-live="polite"></div>
+        <div class="actions" aria-label="Presenter controls">
+          <button id="reset-action" class="button button-secondary" disabled>Reset</button>
+          <button id="autonomous-action" class="button button-secondary" disabled>Run autonomous agent</button>
+          <button id="probe-action" class="button button-primary" disabled>Run targeted instance</button>
+          <button id="export-action" class="button button-secondary" disabled>Export evidence</button>
+        </div>
+        <p id="control-note" class="control-note">Run controls unlock as their Phase 3 endpoints are connected.</p>
+      </section>
+
+      <section class="workspace" aria-label="Scenario evidence workspace">
+        <article class="panel topology-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">OBSERVED PATHS</p>
+              <h2>Trust-boundary topology</h2>
+            </div>
+          </div>
+
+          <div id="topology" class="topology" aria-label="Management plane, OT services zone and critical asset topology">
+            <div class="zone zone-management">
+              <span class="zone-label">MANAGEMENT PLANE</span>
+              <div class="node node-agent">
+                <span class="node-icon">AI</span>
+                <div><strong id="agent-node-title">Patch agent</strong><small id="agent-node-state">monitoring-reader</small></div>
+              </div>
+              <div id="policy-node" class="node node-policy is-muted">
+                <span class="node-icon">PX</span>
+                <div><strong id="policy-node-title">Policy engine</strong><small id="policy-node-state">not evaluated in B</small></div>
+              </div>
+            </div>
+            <div class="zone zone-services">
+              <span class="zone-label">OT SERVICES ZONE</span>
+              <div id="inventory-node" class="node node-inventory">
+                <span class="node-icon">DB</span>
+                <div><strong>Monitored assets</strong><small id="inventory-node-state">Loading fleet…</small></div>
+              </div>
+              <div id="broker-node" class="node node-broker">
+                <span class="node-icon">GW</span>
+                <div><strong>OT application gateway</strong><small>privileged intermediary</small></div>
+              </div>
+            </div>
+            <div class="boundary-line"><span>CRITICAL BOUNDARY</span></div>
+            <div class="zone zone-critical">
+              <span class="zone-label">CRITICAL ZONE</span>
+              <div id="critical-assets" class="critical-assets" aria-label="Critical PLC assets">
+                <span class="critical-assets-loading">Loading PLC fleet…</span>
+              </div>
+            </div>
+            <div class="edge edge-monitored" aria-hidden="true"></div>
+            <div class="edge edge-agent-gateway" aria-hidden="true"></div>
+            <div id="edge-critical" class="edge edge-critical"></div>
+            <div class="route-statuses" aria-label="Observed path status">
+              <span>Patch agent → Monitored assets <b>Reachable</b></span>
+              <span>Patch agent → OT gateway <b>Reachable</b></span>
+              <span id="edge-critical-label">Gateway → Critical zone <b>Not tested</b></span>
+            </div>
+          </div>
+          <div id="outcome-banner" class="outcome-banner outcome-idle">
+            <span class="outcome-symbol">○</span>
+            <div>
+              <strong>No run evidence yet</strong>
+              <p>Topology paths remain conceptual until service events prove an allow, deny, or asset receipt.</p>
+            </div>
+          </div>
+        </article>
+
+        <div class="side-stack">
+          <article class="panel evidence-panel">
+            <div class="panel-heading compact">
+              <div><p class="section-kicker">CURRENT MODE</p><h2 id="scenario-title">Loading…</h2></div>
+              <span id="scenario-badge" class="readiness-badge">—</span>
+            </div>
+            <p id="scenario-summary" class="panel-copy">Reading the scenario manifest.</p>
+            <div class="mission-brief">
+              <span class="label">RUN SCOPE</span>
+              <p>Autonomous runs inspect the full 30-asset fleet. Targeted instances inspect one monitoring asset and one critical PLC.</p>
+            </div>
+            <div class="inventory-brief">
+              <span class="label">FLEET INVENTORY</span>
+              <div id="inventory-list" class="inventory-list">Loading trusted fixture…</div>
+            </div>
+            <div id="preflight" class="preflight" aria-live="polite">
+              <span class="spinner" aria-hidden="true"></span> Waiting for registry
+            </div>
+          </article>
+
+          <article class="panel tool-panel">
+            <div class="panel-heading compact"><div><p id="inspection-kicker" class="section-kicker">AGENT ACTIVITY</p><h2 id="inspection-title">Latest attempted action</h2></div></div>
+            <div id="tool-content" class="empty-state"><span>⌁</span><p>No agent activity yet</p><small>Run a scenario to see what the agent tried to do and the access role it used.</small></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel timeline-panel" aria-labelledby="timeline-heading">
+        <div class="panel-heading">
+          <div><p class="section-kicker">ORDERED EVIDENCE</p><h2 id="timeline-heading">Event timeline</h2></div>
+          <span id="event-count" class="event-count">0 events</span>
+        </div>
+        <div id="timeline-content" class="timeline-empty"><strong>Evidence, not inference.</strong><span>Events will appear here in monotonic sequence order. Raw records and correlation IDs remain inspectable.</span></div>
+      </section>
+    </main>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <dialog id="event-dialog" class="event-dialog">
+      <div class="dialog-heading">
+        <div><p class="section-kicker">RAW EVENT</p><h2 id="dialog-title">Evidence detail</h2></div>
+        <button id="dialog-close" class="dialog-close" type="button" aria-label="Close event detail">×</button>
+      </div>
+      <pre id="dialog-json"></pre>
+    </dialog>
+  </body>
+</html>
