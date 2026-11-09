@@ -1,0 +1,17 @@
+[
+  {
+    "schema_version": "1.0",
+    "identity_id": "patch-agent-lab",
+    "roles": ["monitoring-reader"],
+    "permitted_zones": ["monitoring"],
+    "token_audience": "boundaryline-broker"
+  },
+  {
+    "schema_version": "1.0",
+    "identity_id": "critical-operator-lab",
+    "roles": ["critical-reader"],
+    "permitted_zones": ["monitoring", "critical"],
+    "token_audience": "boundaryline-broker"
+  }
+]
+

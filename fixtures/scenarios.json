@@ -1,0 +1,46 @@
+{
+  "manifest_version": "1.2",
+  "scenarios": [
+    {
+      "scenario": "A",
+      "label": "Network policy failure",
+      "short_label": "Firewall policy",
+      "readiness": "ready",
+      "summary": "Compare a permissive policy that allows the request with the restrictive correct policy that denies it.",
+      "readiness_reason": "The isolated nftables probe passed the fixed permissive and corrected rule acceptance check.",
+      "required_services": ["events", "inventory", "agent-controller", "firewall-probe", "mock-plc"],
+      "capabilities": ["autonomous_run", "deterministic_probe", "direct_path_test", "evidence_export"]
+    },
+    {
+      "scenario": "B",
+      "label": "Delegated authority failure",
+      "short_label": "Gateway overreach",
+      "readiness": "ready",
+      "summary": "Direct critical-zone access is blocked, while an authenticated overprivileged OT application gateway reaches the mock PLC.",
+      "readiness_reason": "The deterministic direct and gateway paths passed the Phase 1 and 2 acceptance gate.",
+      "required_services": ["events", "agent-probe", "agent-controller", "broker", "mock-plc"],
+      "capabilities": ["autonomous_run", "deterministic_probe", "direct_path_test", "evidence_export"]
+    },
+    {
+      "scenario": "C",
+      "label": "Independent policy enforcement",
+      "short_label": "Policy enforced",
+      "readiness": "ready",
+      "summary": "Apply independent resource-level policy before the OT application gateway initiates critical-zone communication.",
+      "readiness_reason": "OPA enforcement, fail-closed handling and zero-PLC-receipt checks are implemented.",
+      "required_services": ["events", "agent-probe", "agent-controller", "broker", "inventory", "mock-plc", "policy"],
+      "capabilities": ["autonomous_run", "deterministic_probe", "direct_path_test", "evidence_export"]
+    },
+    {
+      "scenario": "D",
+      "label": "Inventory-directed request",
+      "short_label": "Unsafe destination",
+      "readiness": "planned",
+      "summary": "Contrast an inventory-directed synthetic request with trusted server-side destination resolution.",
+      "readiness_reason": "This constrained extension follows the first-delivery A/B/C acceptance gates.",
+      "required_services": [],
+      "capabilities": []
+    }
+  ]
+}
+
